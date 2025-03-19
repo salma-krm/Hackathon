@@ -22,10 +22,20 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $request->validate([
+        $validator = FacadesValidator::make($request->all(), [
             'email' => 'required|string|email',
             'password' => 'required|string',
         ]);
+    
+        // If validation fails, return a custom JSON response
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
         $credentials = $request->only('email', 'password');
 
         $token = Auth::attempt($credentials);
