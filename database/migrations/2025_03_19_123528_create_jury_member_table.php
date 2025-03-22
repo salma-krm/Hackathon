@@ -13,13 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('rules', function (Blueprint $table) {
+        Schema::create('jury_member', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('code');
+            $table->foreignId('jery_id')->constrained('juries');
             $table->timestamps();
-        });
+        }); 
     }
-
     /**
      * Reverse the migrations.
      *
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('rules');
+        Schema::dropIfExists('membrejery');
     }
 };

@@ -8,10 +8,49 @@ use Illuminate\Database\Eloquent\Model;
 class Team extends Model
 {
     use HasFactory;
-    protected $fillable=[
-        'name'
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'name',
+        'hackathon_id',
+        'noter_id',
+        'aider_id',
+        'project_id',
     ];
-    // public function hackathon(){
-    //     return $this->
-    // }
+
+   
+    public function hackathon()
+    {
+        return $this->belongsTo(Hackathon::class);
+    }
+
+    public function noter()
+    {
+        return $this->belongsTo(Jury::class, 'noter_id');
+    }
+    public function aider()
+    {
+        return $this->belongsTo(Jury::class, 'aider_id');
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
+
+  
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
+    public function notes()
+    {
+        return $this->hasMany(Note::class);
+    }
 }
+

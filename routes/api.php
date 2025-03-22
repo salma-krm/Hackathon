@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RulesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,7 +21,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
-
+Route::controller(RulesController::class)->group(function () {
+    route::post('create', 'create');
+    route::post('update', 'update');
+    route::post('delete', 'delete');
+});
 
 Route::controller(AuthController::class)->group(function () {
     Route::post('login', 'login');
@@ -28,5 +33,4 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('logout', 'logout')->middleware('auth:api');
     Route::post('refresh', 'refresh');
     Route::get('me', 'me');
-
 });

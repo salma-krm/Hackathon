@@ -17,6 +17,9 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->foreignId('hackathon_id')->constrained('hackathon');
+            $table->foreignId('noter_id')->constrained('juries');
+            $table->foreignId('aider_id')->constrained('juries');
+            $table->foreignId('project_id')->nullable()->constrained('project');
             $table->timestamps();
         });
     }

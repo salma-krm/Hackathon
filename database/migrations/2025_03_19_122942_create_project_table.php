@@ -16,10 +16,9 @@ return new class extends Migration
         Schema::create('project', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('description');
-            $table->string('lien_github');
+            $table->text('description');
+            $table->string('link_github');
             $table->foreignId('theme_id')->constrained('theme');
-            $table->foreignId('team_id')->constrained('team');
             $table->timestamps();
         });
     }

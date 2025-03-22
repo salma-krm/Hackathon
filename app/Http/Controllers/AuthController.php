@@ -70,7 +70,6 @@ class AuthController extends Controller
         ]);
         $role = Role::where("name", 'LIKE', '%admin%')->first();
         if ($role) {
-
             $user->roles()->attach($role->id);
         }
         $token = Auth::login($user);

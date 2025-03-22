@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Note extends Model
+class JuryMember extends Model
 {
     use HasFactory;
 
@@ -15,17 +15,21 @@ class Note extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'value',
+        'username',
+        'pin',
+        
     ];
 
+    
+
   
-    public function juryMember()
+    public function jury()
     {
-        return $this->belongsTo(JuryMember::class);
+        return $this->belongsTo(Jury::class);
     }
 
-    public function team()
+    public function notes()
     {
-        return $this->belongsTo(Team::class);
+        return $this->hasMany(Note::class);
     }
 }

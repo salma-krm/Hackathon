@@ -16,8 +16,7 @@ return new class extends Migration
         Schema::create('theme', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('description');
-            $table->foreignId('hackathon_id')->constrained('hackathon');
+            $table->text('description');
             $table->timestamps();
         });
     }

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Rule;
 
 class RulesSeeder extends Seeder
 {
@@ -14,6 +14,9 @@ class RulesSeeder extends Seeder
      */
     public function run()
     {
-        //
+        // Generate 10 fake records using the Rule factory
+        Rule::factory()->count(10)->create();
+
+        echo "10 fake records inserted into 'rules' table using the factory.\n";
     }
 }

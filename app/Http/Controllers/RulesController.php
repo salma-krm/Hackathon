@@ -2,85 +2,81 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\rules;
-use App\Http\Requests\StorerulesRequest;
-use App\Http\Requests\UpdaterulesRequest;
+use App\Models\rule;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class RulesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
+    {}
+
+    public function create(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+
+            'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
+
+        ]);
+        if ($validator->fails()) {
+
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+        $rule = rule::create([
+            'name' => $request->name,
+        ]);
+        return response()->json([
+            'rule' => $rule,
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function update(Request $request)
     {
-        //
+
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
+        ]);
+
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+        $updated = DB::table('rules')->where('id', $request->id)->update(['name' => $request->name]);
+
+
+        if ($updated) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Rule updated successfully!',
+                'name' => $request->all(),
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No changes were made or rule not found.',
+            ]);
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StorerulesRequest  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StorerulesRequest $request)
+    public function delete(Request $request)
     {
-        //
-    }
+        $deleted = DB::table('rules')->where('id', $request->id)->delete();
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\rules  $rules
-     * @return \Illuminate\Http\Response
-     */
-    public function show(rules $rules)
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\rules  $rules
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(rules $rules)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdaterulesRequest  $request
-     * @param  \App\Models\rules  $rules
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdaterulesRequest $request, rules $rules)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\rules  $rules
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(rules $rules)
-    {
-        //
+        if ($deleted) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Rule deleted successfully!',
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Rule not found or deletion failed.',
+            ]);
+        }
     }
 }

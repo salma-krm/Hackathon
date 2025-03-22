@@ -8,10 +8,20 @@ use Illuminate\Database\Eloquent\Model;
 class Theme extends Model
 {
     use HasFactory;
-    protected $fillable=[
-        'name','description',
+
+    protected $fillable = [
+        'name',
+        'description',
     ];
-    public function hackathon(){
-        return $this->belongsto(Hackathon::class);
+
+    public function hackathons()
+    {
+        return $this->belongsToMany(Hackathon::class);
+    }
+
+   
+    public function projects()
+    {
+        return $this->hasMany(Project::class);
     }
 }
