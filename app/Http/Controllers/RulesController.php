@@ -10,28 +10,30 @@ use Illuminate\Support\Facades\Validator;
 class RulesController extends Controller
 {
 
-    public function index()
-    {}
+    public function index() {}
 
     public function create(Request $request)
     {
+
+        if (!$this->validate($request->name, 'name')) {
+            return $this->response(null, null, "error", 422);
+        }
         $validator = Validator::make($request->all(), [
 
-            'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
+            'name' => ['required', 'string', 'max:255'],
 
         ]);
         if ($validator->fails()) {
 
             return response()->json([
                 'errors' => $validator->errors(),
+
             ], 422);
         }
         $rule = rule::create([
             'name' => $request->name,
         ]);
-        return response()->json([
-            'rule' => $rule,
-        ]);
+        return $this->response("succ", 201, $rule);
     }
 
     public function update(Request $request)
@@ -49,11 +51,8 @@ class RulesController extends Controller
 
 
         if ($updated) {
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Rule updated successfully!',
-                'name' => $request->all(),
-            ]);
+
+            return $this->response($request->all());
         } else {
             return response()->json([
                 'status' => 'error',

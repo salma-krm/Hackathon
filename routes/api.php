@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RulesController;
+use App\Http\Controllers\ThemeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,6 +24,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::controller(RulesController::class)->group(function () {
     route::post('create', 'create');
+    route::post('update', 'update');
+    route::post('delete', 'delete');
+});
+
+
+Route::controller(ThemeController::class)->group(function () {
+    route::post('createtheme', 'create');
     route::post('update', 'update');
     route::post('delete', 'delete');
 });
