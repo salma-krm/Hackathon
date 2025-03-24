@@ -1,5 +1,4 @@
 <?php
-
 namespace Tests\Unit;
 
 use Tests\TestCase;
@@ -8,6 +7,15 @@ use Exception;
 
 class CalculeServiceTest extends TestCase
 {
+    protected $calculeService;
+
+    // Set up the service instance before each test
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->calculeService = new CalculeService();
+    }
+
     /**
      * Test the "some" method of CalculeService.
      *
@@ -15,10 +23,7 @@ class CalculeServiceTest extends TestCase
      */
     public function testSuccessSome()
     {
-        $service = new CalculeService();
-
-        $result = $service->some(3, 9);
-
+        $result = $this->calculeService->some(3, 9);
         $this->assertEquals(12, $result);
     }
 
@@ -29,11 +34,8 @@ class CalculeServiceTest extends TestCase
      */
     public function testDivideFunctionSuccess()
     {
-        $service = new CalculeService();
-
-        $result = $service->divide(2, 2);
-
-        $this->assertEquals(2, $result);
+        $result = $this->calculeService->divide(2, 2);
+        $this->assertEquals(1, $result);  // Fixed expected result to 1 (2 / 2 = 1)
     }
 
     /**
@@ -43,13 +45,9 @@ class CalculeServiceTest extends TestCase
      */
     public function testDivideFunctionThrowsException()
     {
-        $service = new CalculeService();
-
-        // Expect an exception to be thrown
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Division by zero is not allowed.');
-
-        // Call the divide method with divisor as 0
-        $service->divide(2, 0);
+        
+        $this->calculeService->divide(2, 0);
     }
 }
