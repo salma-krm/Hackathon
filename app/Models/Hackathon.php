@@ -14,23 +14,24 @@ class Hackathon extends Model
      *
      * @var array<int, string>
      */
+    protected $table="hackathon";
     protected $fillable = [
         'date',
         'place',
-        'organisateur_id',
+      
        
     ];
 
    
     public function themes()
     {
-        return $this->belongsToMany(Theme::class);
+        return $this->hasMany(Theme::class);
     }
 
     public function rules()
     {
-        return $this->belongsToMany(Rule::class);
-    }
+        return $this->belongsToMany(Rule::class,'rules_hackathon','hackathon_id','rule_id');
+    }   
 
    
     public function teams()
@@ -38,7 +39,7 @@ class Hackathon extends Model
         return $this->hasMany(Team::class);
     }
 
-    public function admin()
+    public function organisateur()
     {
         return $this->belongsTo(User::class, 'organisateur_id');
     }

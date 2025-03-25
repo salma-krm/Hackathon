@@ -14,10 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::create('rules_hackathon', function (Blueprint $table) {
-            $table->id();
             $table->timestamps();
-            $table->foreignId('hackathon_id')->constrained('hackathon')->onDelete('cascade');
-            $table->foreignId('rule_id')->constrained('rules')->onDelete('cascade');
+            $table->foreignId('hackathon_id')->constrained('hackathon');
+            $table->foreignId('rule_id')->constrained('rules');
         });
     }
     

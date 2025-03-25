@@ -15,8 +15,9 @@ return new class extends Migration
     {
         Schema::create('theme', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->default("Aamir");
+            $table->string('name');
             $table->text('description');
+            $table->foreignId('hackathon_id')->nullable()->constrained('hackathon');
             $table->timestamps();
         });
     }

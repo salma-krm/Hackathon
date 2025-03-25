@@ -3,8 +3,10 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\HackathonController;
 use App\Http\Controllers\RulesController;
 use App\Http\Controllers\ThemeController;
+use App\Models\Hackathon;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,8 +33,13 @@ Route::controller(RulesController::class)->group(function () {
 
 Route::controller(ThemeController::class)->group(function () {
     route::post('createtheme', 'create');
-    route::post('update', 'update');
-    route::post('delete', 'delete');
+    route::post('updatetheme', 'update');
+    route::post('deletetheme', 'delete');
+});
+Route::controller(HackathonController::class)->group(function () {
+    route::post('createhackathon', 'create');
+    route::post('updatehackathon', 'update');
+    route::post('deletehackathon', 'delete');
 });
 
 Route::controller(AuthController::class)->group(function () {

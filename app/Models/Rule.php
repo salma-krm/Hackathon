@@ -14,8 +14,8 @@ class Rule extends Model
     ];
 
     
-    public function hackathons()
+    public function hackathon()
     {
-        return $this->belongsToMany(Hackathon::class);
+        return $this->belongsToMany(Hackathon::class,'rules_hackathon','hackathon_id','rule_id');
     }
 }

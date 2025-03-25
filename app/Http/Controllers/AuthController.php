@@ -60,15 +60,12 @@ class AuthController extends Controller
                 'errors' => $validator->errors(),
             ], 422); 
         }
-        
-
-
         $user = user::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
-        $role = Role::where("name", 'LIKE', '%admin%')->first();
+        $role = Role::where("name", 'LIKE', '%organisateur%')->first();
         if ($role) {
             $user->roles()->attach($role->id);
         }

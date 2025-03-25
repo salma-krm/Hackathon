@@ -23,28 +23,30 @@ class ThemeController extends Controller
 
    
     public function create(Request $request)
-    {
-        // if (!$this->validate($request->name,'name')) {
-        //     return $this->response(null, null, "error", 202);
-        // }
-        // if (!$this->validate($request->description, 'text')) {
-        //     return $this->response(null, null, "error", 422);
-        // }
-        $validator =Validator::make($request->all(),[
+{
+ 
+    $validator = Validator::make($request->all(), [
+        'name' => ['required'],
+        'description' => ['required'],
+    ]);
 
-            'name'=>['required'],
-            'description'=>['required'],
-        ]);
-        if($validator->fails()){
-            return response()->json([
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-        // return ["message"=>$request->all()];
-        $theme = Theme::create([$request->name,$request->description]);
-        return $this->response('succ',201,$theme);
-
+    if ($validator->fails()) {
+        return response()->json([
+            'errors' => $validator->errors(),
+        ], 422);
     }
+
+  $theme = new Theme;
+  $theme->name= $request->name;
+  $theme->description= $request->description;
+  $theme->save();
+
+    return response()->json([
+        'message' => 'success',
+        'data' => $theme,
+    ], 201);
+}
+
 
 
    

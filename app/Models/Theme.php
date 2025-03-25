@@ -14,12 +14,10 @@ protected $table='theme';
         'description',
     ];
 
-    public function hackathons()
+    public function hackathon()
     {
-        return $this->belongsToMany(Hackathon::class);
+        return $this->belongsTo(Hackathon::class,'hackathon_id');
     }
-
-   
     public function projects()
     {
         return $this->hasMany(Project::class);
