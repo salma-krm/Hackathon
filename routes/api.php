@@ -37,7 +37,8 @@ Route::controller(ThemeController::class)->group(function () {
     route::post('deletetheme', 'delete');
 });
 Route::controller(HackathonController::class)->group(function () {
-    route::post('createhackathon', 'create');
+    route::get('gethackathon', 'index');
+    Route::middleware(['auth:JWT', 'role.organisateur'])->post('createhackathon', 'create');
     route::post('updatehackathon', 'update');
     route::post('deletehackathon', 'delete');
 });

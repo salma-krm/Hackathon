@@ -20,46 +20,58 @@ class HackathonController extends Controller
      */
     public function index()
     {
-        //
+        
+        $hackathons = Hackathon::get();
+        
+        foreach ($hackathons as $hack) {
+            return response()->json([
+                'place' => $hack->place,
+                'Theme ' => $hack->theme ,
+                'rule ' => $hack->rules ,
+
+            ], 200);
+        }
     }
-
-
+    
     public function create(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'place' => 'required|string',
             'rules' => 'required|array',
+            'themes' => 'required|array',  
         ]);
+    
         if ($validator->fails()) {
             return response()->json([
                 'errors' => $validator->errors(),
             ], 422);
         }
-
-
-      
+    
+       
         $hackathon = new Hackathon();
         $hackathon->date = now();
         $hackathon->place = $request->place;
         $hackathon->save();
-
-        
+    
+       
         foreach ($request->themes as $name) {
             $theme = Theme::where('name', $name)->first();
-            if($theme){
-            $theme->hackathon()->associate($hackathon);
-            $theme->save();
+            if ($theme) {
+                $theme->hackathon()->associate($hackathon);
+                $theme->save();
+            }
         }
-        foreach ($request->rules as $name) {
-            $rule = Rule::where('name',$name)->first();
-            $rule->hackathon()->attach($rule->id);
-            // return "Scascasc";
-            $rule->save();
-            return $rule();
-        }
+    
         
-    }
+        foreach ($request->rules as $name) {
+            $rule = Rule::where('name', $name)->first();
+            if ($rule) {
+                $hackathon->rules()->attach($rule->id);
+                $rule->save();
+            }
+        }
+    
+        
         return response()->json([
             'created' => $hackathon,
         ], 201);
