@@ -13,47 +13,39 @@ use Illuminate\Support\Facades\Validator;
 
 class HackathonController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        
+
         $hackathons = Hackathon::get();
-        
+
         foreach ($hackathons as $hack) {
             return response()->json([
                 'place' => $hack->place,
-                'Theme ' => $hack->theme ,
-                'rule ' => $hack->rules ,
+                'Theme ' => $hack->theme,
+                'rule ' => $hack->rules,
 
             ], 200);
         }
     }
-    
+
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'place' => 'required|string',
             'rules' => 'required|array',
-            'themes' => 'required|array',  
+            'themes' => 'required|array',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'errors' => $validator->errors(),
             ], 422);
         }
-    
-       
+
         $hackathon = new Hackathon();
         $hackathon->date = now();
         $hackathon->place = $request->place;
         $hackathon->save();
-    
-       
         foreach ($request->themes as $name) {
             $theme = Theme::where('name', $name)->first();
             if ($theme) {
@@ -61,8 +53,8 @@ class HackathonController extends Controller
                 $theme->save();
             }
         }
-    
-        
+
+
         foreach ($request->rules as $name) {
             $rule = Rule::where('name', $name)->first();
             if ($rule) {
@@ -70,8 +62,8 @@ class HackathonController extends Controller
                 $rule->save();
             }
         }
-    
-        
+
+
         return response()->json([
             'created' => $hackathon,
         ], 201);
@@ -90,27 +82,57 @@ class HackathonController extends Controller
                 'errors' => $validator->errors(),
             ], 422);
         }
-
         DB::table('hackathon')
             ->where('id', $request->id)
             ->update(['place' => $request->place, 'date' => now()]);
-
-
         $hackathon = Hackathon::where('id', $request->id)->first();
-
-        
-            DB::table('rules_hackathon')
-                ->where('hackathon_id', $request->id)
-                ->delete();
+        DB::table('rules_hackathon')
+            ->where('hackathon_id', $request->id)
+            ->delete();
         $rules = $request->rules;
         foreach ($rules as $name) {
             $rule = Rule::where('name', $name)->first();
 
             $hackathon->rules()->attach($rule)->save();
-
-
-            
         }
         return $this->response($request->all());
+    }
+
+
+
+
+    
+    public function delete(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::table('rules_hackathon')->where('hackathon_id', $request->id)->delete();
+
+        $hackathon = Hackathon::find($request->id);
+
+        if (!$hackathon) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Theme not found.',
+            ], 404);
+        }
+        if ($hackathon->delete()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Theme deleted successfull',
+            ], 200);
+        }
+        return response()->json([
+            'status' => 'error',
+            'message' => ' hackathon not deleted',
+        ], 500);
     }
 }

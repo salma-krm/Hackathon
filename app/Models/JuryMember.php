@@ -17,12 +17,7 @@ class JuryMember extends Model
     protected $fillable = [
         'username',
         'pin',
-        
     ];
-
-    
-
-  
     public function jury()
     {
         return $this->belongsTo(Jury::class);

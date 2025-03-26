@@ -18,7 +18,7 @@ class Project extends Model
         'title',
         'description',
         'link_github',
-        'theme_id',
+        
     ];
 
     public function theme()

@@ -10,7 +10,16 @@ use Illuminate\Support\Facades\Validator;
 class RulesController extends Controller
 {
 
-    public function index() {}
+    public function index() {
+        $rules = Rule::get();
+
+        foreach ($rules as $rule) {
+            return response()->json([
+                'rule ' => $rule->name,
+            ], 200);
+        }
+    }
+
 
     public function create(Request $request)
     {
@@ -56,7 +65,7 @@ class RulesController extends Controller
         } else {
             return response()->json([
                 'status' => 'error',
-                'message' => 'No changes were made or rule not found.',
+                'message' => 'No changes',
             ]);
         }
     }
@@ -69,12 +78,12 @@ class RulesController extends Controller
         if ($deleted) {
             return response()->json([
                 'status' => 'success',
-                'message' => 'Rule deleted successfully!',
+                'message' => 'Rule deleted succes',
             ]);
         } else {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Rule not found or deletion failed.',
+                'message' => 'Rule not found ',
             ]);
         }
     }

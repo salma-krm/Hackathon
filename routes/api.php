@@ -19,6 +19,10 @@ use App\Models\Hackathon;
 |
 */
 
+Route::get('/t', function() {
+    return "test";
+});
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
@@ -38,7 +42,6 @@ Route::controller(ThemeController::class)->group(function () {
 });
 Route::controller(HackathonController::class)->group(function () {
     route::get('gethackathon', 'index');
-    Route::middleware(['auth:JWT', 'role.organisateur'])->post('createhackathon', 'create');
     route::post('updatehackathon', 'update');
     route::post('deletehackathon', 'delete');
 });
@@ -49,4 +52,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('logout', 'logout')->middleware('auth:api');
     Route::post('refresh', 'refresh');
     Route::get('me', 'me');
+});
+Route::middleware('organisateur')->group(function () {
+    Route::post('createhackathon', [HackathonController::class,'create']);
 });

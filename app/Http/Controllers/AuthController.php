@@ -58,17 +58,17 @@ class AuthController extends Controller
 
             return response()->json([
                 'errors' => $validator->errors(),
-            ], 422); 
+            ], 422);
         }
-        $user = user::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        $user = new User;
+        $user->name= $request->name;
+        $user->email= $request->email;
+        $user->password= Hash::make($request->password);
+        $user->save();
         $role = Role::where("name", 'LIKE', '%organisateur%')->first();
         if ($role) {
             $user->roles()->attach($role->id);
-        }
+        } 
         $token = Auth::login($user);
         return response()->json([
             'status' => 'success',

@@ -16,16 +16,12 @@ class Team extends Model
      */
     protected $fillable = [
         'name',
-        'hackathon_id',
-        'noter_id',
-        'aider_id',
-        'project_id',
     ];
 
    
     public function hackathon()
     {
-        return $this->belongsTo(Hackathon::class);
+        return $this->belongsTo(Hackathon::class,'hackathon_id');
     }
 
     public function noter()
@@ -39,10 +35,8 @@ class Team extends Model
 
     public function project()
     {
-        return $this->belongsTo(Project::class);
+        return $this->belongsTo(Project::class,'project_id');
     }
-
-  
     public function users()
     {
         return $this->hasMany(User::class);

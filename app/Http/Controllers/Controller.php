@@ -20,7 +20,6 @@ class Controller extends BaseController
 
         ]);
     }
-
     public function validate($data, $type)
     {
         switch ($type) {
@@ -36,11 +35,10 @@ class Controller extends BaseController
                 return filter_var($data, FILTER_VALIDATE_EMAIL) !== false;
 
             case 'password':
-                // Validate password criteria: minimum 8 characters, at least one letter, and one digit
+     
                 return (strlen($data) >= 8 && preg_match("/[A-Za-z]/", $data) && preg_match("/[\d]/", $data));
 
             case 'number':
-                // Validate that data contains only digits
                 return preg_match("/^\d+$/", $data);
 
             default:
