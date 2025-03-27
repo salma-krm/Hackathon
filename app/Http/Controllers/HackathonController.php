@@ -1,0 +1,155 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Hackathon;
+use App\Http\Requests\StoreHackathonRequest;
+use App\Http\Requests\UpdateHackathonRequest;
+use App\Models\Rule;
+use App\Models\Theme;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+
+class HackathonController extends Controller
+{
+    public function index()
+    {
+
+        $hackathons = Hackathon::get();
+
+        foreach ($hackathons as $hack) {
+            return response()->json([
+                'place' => $hack->place,
+                'Theme ' => $hack->theme,
+                'rule ' => $hack->rules,
+
+            ], 200);
+        }
+    }
+
+    public function create(Request $request)
+    {
+        if ($this->validate($request->place, 'text')) {
+            return true;
+        }else{
+            throw new Exception('invalid place');
+        }
+        
+        
+
+        $validator = Validator::make($request->all(), [
+            'place' => 'required|string',
+            'rules' => 'required|array',
+            'themes' => 'required|array',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $hackathon = new Hackathon();
+        $hackathon->date = now();
+        $hackathon->place = $request->place;
+        $hackathon->save();
+        foreach ($request->themes as $name) {
+            $theme = Theme::where('name', $name)->first();
+            if ($theme) {
+                $theme->hackathon()->associate($hackathon);
+                $theme->save();
+            }
+        }
+
+
+        foreach ($request->rules as $name) {
+            $rule = Rule::where('name', $name)->first();
+            if ($rule) {
+                $hackathon->rules()->attach($rule->id);
+                $rule->save();
+            }
+        }
+
+
+        return response()->json([
+            'created' => $hackathon,
+        ], 201);
+    }
+    public function update(Request $request)
+    {
+        if ($this->validate($request->place, 'text')) {
+            return true;
+        }else{
+            throw new Exception('invalid place');
+        }
+        $validator = Validator::make($request->all(), [
+            'place' => 'required|string',
+            'id' => 'required|integer',
+            'rules' => 'required|array',
+        ]);
+
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+        DB::table('hackathon')
+            ->where('id', $request->id)
+            ->update(['place' => $request->place, 'date' => now()]);
+        $hackathon = Hackathon::where('id', $request->id)->first();
+        DB::table('rules_hackathon')
+            ->where('hackathon_id', $request->id)
+            ->delete();
+        $rules = $request->rules;
+        foreach ($rules as $name) {
+            $rule = Rule::where('name', $name)->first();
+
+            $hackathon->rules()->attach($rule)->save();
+        }
+        return $this->response($request->all());
+    }
+
+
+    
+    public function delete(Request $request)
+    {
+        if ($this->validate($request->place, 'number')) {
+            return true;
+        }else{
+            throw new Exception('invalid nicht is the number ');
+        }
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::table('rules_hackathon')->where('hackathon_id', $request->id)->delete();
+
+        $hackathon = Hackathon::find($request->id);
+
+        if (!$hackathon) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Theme not found.',
+            ], 404);
+        }
+        if ($hackathon->delete()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Theme deleted successfull',
+            ], 200);
+        }
+        return response()->json([
+            'status' => 'error',
+            'message' => ' hackathon not deleted',
+        ], 500);
+    }
+}
