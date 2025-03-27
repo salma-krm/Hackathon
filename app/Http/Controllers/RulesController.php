@@ -19,8 +19,6 @@ class RulesController extends Controller
             ], 200);
         }
     }
-
-
     public function create(Request $request)
     {
 

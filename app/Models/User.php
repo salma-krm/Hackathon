@@ -64,5 +64,13 @@ class User extends Authenticatable implements ContractsJWTSubject
     {
         return [];
     }
-
+public function participannt(){
+    $this->role->name=='participant';
+}
+public function otganisateur(){
+    $this->role->name=='organisateur';
+}
+public function admin(){
+    $this->role->name=='admin';
+}
 }

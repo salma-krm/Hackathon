@@ -21,7 +21,7 @@ class Team extends Model
    
     public function hackathon()
     {
-        return $this->belongsTo(Hackathon::class,'hackathon_id');
+        return $this->belongsTo(Hackathon::class);
     }
 
     public function noter()
@@ -35,10 +35,11 @@ class Team extends Model
 
     public function project()
     {
-        return $this->belongsTo(Project::class,'project_id');
+        return $this->belongsTo(Project::class);
     }
-    public function users()
+    public function user()
     {
+
         return $this->hasMany(User::class);
     }
 

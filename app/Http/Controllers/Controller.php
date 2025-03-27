@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\JuryMember;
+use Exception;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -10,8 +12,9 @@ use Illuminate\Routing\Controller as BaseController;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
-    public function response($message = "succ", $code = 200, $data = null, $error = null)
+    public function response( $data = null, $error = null)
     {
+        $message = "succ"; $code = 200;
         return response()->json([
             'message' => $message,
             'code' => $code,
@@ -24,7 +27,6 @@ class Controller extends BaseController
     {
         switch ($type) {
             case 'text':
-
                 return preg_match("/[A-Za-z]\d/", $data);
             case 'name':
 
@@ -32,7 +34,8 @@ class Controller extends BaseController
 
             case 'email':
 
-                return filter_var($data, FILTER_VALIDATE_EMAIL) !== false;
+                (preg_match("/^[a-zA-Z0-9_-.+]+@[a-zA-Z0-9-]+\.[a-zA-Z]+$/", $data));
+                  
 
             case 'password':
      
@@ -44,5 +47,14 @@ class Controller extends BaseController
             default:
                 return false;
         }
+    }
+    public function randomcode()
+    {
+        do {
+            $accountNumber = str_pad(rand(0, 999999999999), 10, '0', STR_PAD_LEFT);
+            $number = JuryMember::where('code', $accountNumber)->exists();
+        } while ($number);
+
+        return $accountNumber;
     }
 }

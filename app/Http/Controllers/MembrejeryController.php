@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\membrejery;
 use App\Http\Requests\StoremembrejeryRequest;
 use App\Http\Requests\UpdatemembrejeryRequest;
+use App\Models\JuryMember;
+use Exception;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Validator;
 
 class MembrejeryController extends Controller
 {
@@ -18,69 +22,44 @@ class MembrejeryController extends Controller
         //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+   
+    public function create(Request $request)
     {
-        //
+        if (!$this->validate($request->code,'number')) {
+        
+            throw new Exception('invalid code');
+        }
+        if ($this->validate($request->name,'name')) {
+            throw new Exception('invalid name');
+        }
+
+        $validator = Validator::make($request->all(), [
+            'code' => 'required|integer',
+            'name' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+        $code = $this->randomcode();
+        $memberjery = new JuryMember();
+        $memberjery->code = $code;
+        $memberjery->place = $request->name;
+        $memberjery->save();
+        if ($memberjery) {
+            return $this->response($memberjery);
+        }else{
+            return response()->json([
+                'status' => 'error',
+                'message' => '  team not created',
+            ], 500);
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoremembrejeryRequest  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoremembrejeryRequest $request)
-    {
-        //
-    }
+  
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\membrejery  $membrejery
-     * @return \Illuminate\Http\Response
-     */
-    public function show(membrejery $membrejery)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\membrejery  $membrejery
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(membrejery $membrejery)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdatemembrejeryRequest  $request
-     * @param  \App\Models\membrejery  $membrejery
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdatemembrejeryRequest $request, membrejery $membrejery)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\membrejery  $membrejery
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(membrejery $membrejery)
-    {
-        //
-    }
+  
+  
 }

@@ -9,20 +9,11 @@ class Hackathon extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $table="hackathon";
     protected $fillable = [
         'date',
-        'place',
-      
-       
+        'place',   
     ];
-
-   
     public function themes()
     {
         return $this->hasMany(Theme::class);
@@ -34,7 +25,7 @@ class Hackathon extends Model
     }   
 
    
-    public function teams()
+    public function team()
     {
         return $this->hasMany(Team::class);
     }

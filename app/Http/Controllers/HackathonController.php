@@ -7,6 +7,7 @@ use App\Http\Requests\StoreHackathonRequest;
 use App\Http\Requests\UpdateHackathonRequest;
 use App\Models\Rule;
 use App\Models\Theme;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -30,6 +31,14 @@ class HackathonController extends Controller
 
     public function create(Request $request)
     {
+        if ($this->validate($request->place, 'text')) {
+            return true;
+        }else{
+            throw new Exception('invalid place');
+        }
+        
+        
+
         $validator = Validator::make($request->all(), [
             'place' => 'required|string',
             'rules' => 'required|array',
@@ -70,6 +79,11 @@ class HackathonController extends Controller
     }
     public function update(Request $request)
     {
+        if ($this->validate($request->place, 'text')) {
+            return true;
+        }else{
+            throw new Exception('invalid place');
+        }
         $validator = Validator::make($request->all(), [
             'place' => 'required|string',
             'id' => 'required|integer',
@@ -99,11 +113,14 @@ class HackathonController extends Controller
     }
 
 
-
-
     
     public function delete(Request $request)
     {
+        if ($this->validate($request->place, 'number')) {
+            return true;
+        }else{
+            throw new Exception('invalid nicht is the number ');
+        }
         $validator = Validator::make($request->all(), [
             'id' => 'required|integer',
         ]);
