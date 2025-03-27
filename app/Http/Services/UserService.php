@@ -26,7 +26,7 @@ class UserService
     {
         // Check if the email already exists
         if ($this->repository->existsByEmail($user->getEmail())) {
-            throw new Exception("Email already exists.");
+            throw new Exception("Email already  deja exists.");
         }
 
         // Create the user in the repository

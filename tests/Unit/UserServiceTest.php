@@ -61,8 +61,6 @@ class UserServiceTest extends TestCase
         $service = new UserService($mockRepository);
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Email already exists.');
-
-
         $service->create($user);
     }
 }

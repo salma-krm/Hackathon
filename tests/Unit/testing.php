@@ -42,6 +42,7 @@ class UserServiceTest extends TestCase
             ->willReturn($user); // Simuler la création de l'utilisateur et retourner l'utilisateur créé.
 
         // Créer une instance de UserService, en passant le mock du repository.
+        // injecter mock dans la class user service
         $service = new UserService($mockRepository);
 
         // Appeler la méthode 'create' sur le service pour simuler le processus de création de l'utilisateur.
