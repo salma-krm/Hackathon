@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Hackathon;
-use App\Http\Requests\StoreHackathonRequest;
-use App\Http\Requests\UpdateHackathonRequest;
 use App\Models\Rule;
 use App\Models\Theme;
 use Exception;
@@ -15,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 class HackathonController extends Controller
 {
     public function index()
+    
     {
 
         $hackathons = Hackathon::get();
@@ -31,96 +30,110 @@ class HackathonController extends Controller
 
     public function create(Request $request)
     {
-        if ($this->validate($request->place, 'text')) {
-            return true;
-        }else{
-            throw new Exception('invalid place');
-        }
-        
-        
+        try {
+            if (!$this->validate($request->place, 'text')) {
+                throw new Exception('invalid place');
+            }
 
-        $validator = Validator::make($request->all(), [
-            'place' => 'required|string',
-            'rules' => 'required|array',
-            'themes' => 'required|array',
-        ]);
+            $validator = Validator::make($request->all(), [
+                'place' => 'required|string',
+                'rules' => 'required|array',
+                'themes' => 'required|array',
+            ]);
 
-        if ($validator->fails()) {
+            if ($validator->fails()) {
+                return response()->json([
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            $hackathon = new Hackathon();
+            $hackathon->date = now();
+            $hackathon->place = $request->place;
+            $hackathon->save();
+
+            foreach ($request->themes as $name) {
+                $theme = Theme::where('name', $name)->first();
+                if ($theme) {
+                    $theme->hackathon()->associate($hackathon);
+                    $theme->save();
+                }
+            }
+
+            foreach ($request->rules as $name) {
+                $rule = Rule::where('name', $name)->first();
+                if ($rule) {
+                    $hackathon->rules()->attach($rule->id);
+                }
+            }
+
             return response()->json([
-                'errors' => $validator->errors(),
-            ], 422);
+                'created' => $hackathon,
+            ], 201);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        $hackathon = new Hackathon();
-        $hackathon->date = now();
-        $hackathon->place = $request->place;
-        $hackathon->save();
-        foreach ($request->themes as $name) {
-            $theme = Theme::where('name', $name)->first();
-            if ($theme) {
-                $theme->hackathon()->associate($hackathon);
-                $theme->save();
-            }
-        }
-
-
-        foreach ($request->rules as $name) {
-            $rule = Rule::where('name', $name)->first();
-            if ($rule) {
-                $hackathon->rules()->attach($rule->id);
-                $rule->save();
-            }
-        }
-
-
-        return response()->json([
-            'created' => $hackathon,
-        ], 201);
     }
+
     public function update(Request $request)
     {
-        if ($this->validate($request->place, 'text')) {
-            return true;
-        }else{
-            throw new Exception('invalid place');
-        }
-        $validator = Validator::make($request->all(), [
-            'place' => 'required|string',
-            'id' => 'required|integer',
-            'rules' => 'required|array',
-        ]);
+        try {
+            if ($this->validate($request->place, 'text')) {
+                
+            } else {
+                throw new Exception('Invalid place');
+            }
 
+            $validator = Validator::make($request->all(), [
+                'place' => 'required|string',
+                'id' => 'required|integer',
+                'rules' => 'required|array',
+            ]);
 
-        if ($validator->fails()) {
+            if ($validator->fails()) {
+                return response()->json([
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            $hackathon = Hackathon::where('id', $request->id)->first();
+
+            if (!$hackathon) {
+                throw new Exception('Hackathon not found');
+            }
+
+            DB::table('hackathon')
+                ->where('id', $request->id)
+                ->update(['place' => $request->place, 'date' => now()]);
+
+            DB::table('rules_hackathon')
+                ->where('hackathon_id', $request->id)
+                ->delete();
+
+            foreach ($request->rules as $name) {
+                $rule = Rule::where('name', $name)->first();
+
+                if ($rule) {
+                    $hackathon->rules()->attach($rule);
+                }
+            }
+
             return response()->json([
-                'errors' => $validator->errors(),
-            ], 422);
+                'status' => 'success',
+                'message' => 'Hackathon updated successfully',
+                'hackathon' => $hackathon,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+            ], 500);
         }
-        DB::table('hackathon')
-            ->where('id', $request->id)
-            ->update(['place' => $request->place, 'date' => now()]);
-        $hackathon = Hackathon::where('id', $request->id)->first();
-        DB::table('rules_hackathon')
-            ->where('hackathon_id', $request->id)
-            ->delete();
-        $rules = $request->rules;
-        foreach ($rules as $name) {
-            $rule = Rule::where('name', $name)->first();
-
-            $hackathon->rules()->attach($rule)->save();
-        }
-        return $this->response($request->all());
     }
 
-
-    
     public function delete(Request $request)
     {
-        if ($this->validate($request->place, 'number')) {
-            return true;
-        }else{
-            throw new Exception('invalid nicht is the number ');
-        }
         $validator = Validator::make($request->all(), [
             'id' => 'required|integer',
         ]);
@@ -138,18 +151,20 @@ class HackathonController extends Controller
         if (!$hackathon) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Theme not found.',
+                'message' => 'Hackathon not found.',
             ], 404);
         }
+
         if ($hackathon->delete()) {
             return response()->json([
                 'status' => 'success',
-                'message' => 'Theme deleted successfull',
+                'message' => 'Hackathon deleted successfully',
             ], 200);
         }
+
         return response()->json([
             'status' => 'error',
-            'message' => ' hackathon not deleted',
+            'message' => 'Hackathon not deleted',
         ], 500);
     }
 }

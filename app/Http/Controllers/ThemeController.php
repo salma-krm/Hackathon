@@ -3,17 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Theme;
-use App\Http\Requests\StoreThemeRequest;
-use App\Http\Requests\UpdateThemeRequest;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-
 class ThemeController extends Controller
 {
-
     public function index()
     {
         $themes = theme::get();
@@ -26,43 +22,39 @@ class ThemeController extends Controller
         }
     }
 
-
     public function create(Request $request)
     {
-        if (!$this->validate($request->name,'name')) {
-            throw new Exception('invalid name');
-        }
-        if (!$this->validate($request->name,'text')) {
-            throw new Exception('invalid description');
-        }
-        $validator = Validator::make($request->all(), [
-            'name' => ['required'],
-            'description' => ['required'],
-        ]);
+        try {
+            if (!$this->validate($request->name, 'name')) {
+                throw new Exception('Invalid name');
+            }
+            if (!$this->validate($request->description, 'text')) {
+                throw new Exception('Invalid description');
+            }
 
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors(),
-            ], 422);
-        }
+            $validator = Validator::make($request->all(), [
+                'name' => ['required'],
+                'description' => ['required'],
+            ]);
 
-        $theme = new Theme;
-        $theme->name = $request->name;
-        $theme->description = $request->description;
-        $theme->save();
+            if ($validator->fails()) {
+                return response()->json([
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
 
-        if ($theme) {
+            $theme = new Theme;
+            $theme->name = $request->name;
+            $theme->description = $request->description;
+            $theme->save();
+
             return response()->json($theme, 201);
-        }else{
+        } catch (Exception $e) {
             return response()->json([
-                'status' => 'error',
-                'message' => '  theme not created',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
-
-
-
 
     public function update(Request $request)
     {
@@ -76,20 +68,26 @@ class ThemeController extends Controller
                 'errors' => $validator->errors(),
             ], 422);
         }
-        $updated = DB::table('theme')->where('id', $request->id)->update(['name' => $request->name, 'description' => $request->description]);
-        if ($updated) {
 
-            return $this->response($request->all());
-        } else {
+        $updated = DB::table('themes')
+            ->where('id', $request->id)
+            ->update(['name' => $request->name, 'description' => $request->description]);
+
+        if ($updated) {
             return response()->json([
-                'status' => 'error',
-                'message' => 'No changes  theme not fund ',
-            ]);
+                'status' => 'success',
+                'message' => 'Theme updated successfully',
+            ], 200);
         }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'No changes or theme not found',
+        ], 404);
     }
+
     public function delete(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'id' => 'required|integer',
         ]);
@@ -102,24 +100,23 @@ class ThemeController extends Controller
 
         $theme = Theme::find($request->id);
 
-
         if (!$theme) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Theme not found.',
+                'message' => 'Theme not found',
             ], 404);
         }
+
         if ($theme->delete()) {
             return response()->json([
                 'status' => 'success',
-                'message' => 'Theme deleted successfull',
+                'message' => 'Theme deleted successfully',
             ], 200);
         }
 
-
         return response()->json([
             'status' => 'error',
-            'message' => '  theme not deleted',
+            'message' => 'Failed to delete theme',
         ], 500);
     }
 }

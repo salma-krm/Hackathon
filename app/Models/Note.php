@@ -19,9 +19,9 @@ class Note extends Model
     ];
 
   
-    public function juryMember()
+    public function jury()
     {
-        return $this->belongsTo(JuryMember::class);
+        return $this->belongsTo(Jury::class);
     }
 
     public function team()
