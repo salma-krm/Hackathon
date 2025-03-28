@@ -8,16 +8,10 @@ use App\Http\Requests\UpdateJeryRequest;
 
 class JeryController extends Controller
 {
-    
-    public function index()
-    {
-        //
-    }
-
    
     public function create()
     {
-        //
+        
     }
 
     

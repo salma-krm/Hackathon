@@ -19,16 +19,13 @@ class MembrejeryController extends Controller
      */
     public function index()
     {
-        //
+       
     }
 
    
     public function create(Request $request)
     {
-        if (!$this->validate($request->code,'number')) {
         
-            throw new Exception('invalid code');
-        }
         if ($this->validate($request->name,'name')) {
             throw new Exception('invalid name');
         }
@@ -49,14 +46,74 @@ class MembrejeryController extends Controller
         $memberjery->place = $request->name;
         $memberjery->save();
         if ($memberjery) {
-            return $this->response($memberjery);
+            return response()->json($memberjery, 201);
         }else{
             return response()->json([
                 'status' => 'error',
-                'message' => '  team not created',
+                'message' => '  membrejery not created',
             ], 500);
         }
     }
+    public function update(Request $request, $id)
+{
+    
+    if ($this->validate($request->name,'name')) {
+        throw new Exception('invalid name');
+    }
+    $validator = Validator::make($request->all(), [
+        'name' => 'required|string',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'errors' => $validator->errors(),
+        ], 422);
+    }
+
+
+    
+    $memberjery = JuryMember::find($id);
+
+    if (!$memberjery) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Jury member not found',
+        ], 404);
+    }
+
+    $memberjery->name = $request->name;
+    $memberjery->save();  
+    
+
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Jury member updated ',
+        'data' => $memberjery,
+    ], 200);
+}
+public function delete($id)
+{
+   
+    $memberjery = JuryMember::find($id);
+
+    if (!$memberjery) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Jury member not found',
+        ], 404);
+    }
+
+  
+    $memberjery->delete();
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Jury member deleted ',
+    ], 200);
+}
+
+
 
   
 
