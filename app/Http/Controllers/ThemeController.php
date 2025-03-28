@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Theme;
 use App\Http\Requests\StoreThemeRequest;
 use App\Http\Requests\UpdateThemeRequest;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -28,7 +29,12 @@ class ThemeController extends Controller
 
     public function create(Request $request)
     {
-
+        if (!$this->validate($request->name,'name')) {
+            throw new Exception('invalid name');
+        }
+        if (!$this->validate($request->name,'text')) {
+            throw new Exception('invalid description');
+        }
         $validator = Validator::make($request->all(), [
             'name' => ['required'],
             'description' => ['required'],
@@ -45,10 +51,14 @@ class ThemeController extends Controller
         $theme->description = $request->description;
         $theme->save();
 
-        return response()->json([
-            'message' => 'success',
-            'data' => $theme,
-        ], 201);
+        if ($theme) {
+            return response()->json($theme, 201);
+        }else{
+            return response()->json([
+                'status' => 'error',
+                'message' => '  theme not created',
+            ], 500);
+        }
     }
 
 

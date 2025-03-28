@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\Userrole;
+use Exception;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator as FacadesValidator;
@@ -22,6 +23,16 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        if (!$this->validate($request->name,'name')) {
+            throw new Exception('invalid name');
+        }
+        if (!$this->validate($request->name,'email')) {
+            throw new Exception('invalid email');
+        }
+        if (!$this->validate($request->name,'password')) {
+            throw new Exception('invalid password');
+        }
+        
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',

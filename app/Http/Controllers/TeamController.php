@@ -32,41 +32,45 @@ class TeamController extends Controller
 
     public function create(Request $request)
     {
-        Gate::allows('isParticipant');
         
-        if(!parent::validate($request->name,'text')){
-
-         throw new Exception("validation not authorize ");
+        if (!Gate::allows('isParticipant')) {
+            return response()->json(['error' => 'not aothorize'], 403);
         }
-
-
+    
+        
         $validator = Validator::make($request->all(), [
-            'name' => ['required'],
+            'name' => 'required|string',
+            'hackathon' => 'required|string'
         ]);
-
+    
         if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors(),
-            ], 422);
+            return response()->json(['errors' => $validator->errors()], 422);
         }
+    
+       
         $hackathon = Hackathon::where('name', $request->hackathon)->first();
+        if (!$hackathon) {
+            return response()->json(['error' => 'Hackathon not found'], 404);
+        }
+    
         $user = JWTAuth::parseToken()->authenticate();
+    
 
-        if ($hackathon) {
-            $hackathon->hackathon()->associate($hackathon);
-            $hackathon->save();
-        }
-        if ($user) {
-            $user->user()->associate($hackathon);
-            $hackathon->save();
-        }
-        $team = new Team;
+        $team = new Team();
         $team->name = $request->name;
+        $team->hackathon_id = $hackathon->id;  
         $team->save();
+    
         if ($team) {
-            return $this->response($team);
+            return response()->json($team, 201);
+        }else{
+            return response()->json([
+                'status' => 'error',
+                'message' => '  team not created',
+            ], 500);
         }
     }
+    
 
 
     public function update(Request $request)
