@@ -32,7 +32,14 @@ class TeamController extends Controller
 
     public function create(Request $request)
     {
-        
+        try{
+            if (!$this->validate($request->name,'name')) {
+                throw new Exception('invalid name');
+            }
+            if (!$this->validate($request->hackathon,'name')) {
+                throw new Exception('invalid hackathon');
+            }
+
         if (!Gate::allows('isParticipant')) {
             return response()->json(['error' => 'not aothorize'], 403);
         }
@@ -70,6 +77,18 @@ class TeamController extends Controller
             ], 500);
         }
     }
+    catch (Exception $e) {
+        return response()->json([
+            
+            'erour' => $e->getmessage(),
+        ]);   
+    }
+
+
+    }
+      
+        
+    
     
 
 

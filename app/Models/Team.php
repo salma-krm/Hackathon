@@ -26,11 +26,11 @@ class Team extends Model
 
     public function noter()
     {
-        return $this->belongsTo(Jury::class, 'noter_id');
+        return $this->belongsTo(Jury::class);
     }
     public function aider()
     {
-        return $this->belongsTo(Jury::class, 'aider_id');
+        return $this->belongsTo(Jury::class);
     }
 
     public function project()

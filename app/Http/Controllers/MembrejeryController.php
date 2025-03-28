@@ -2,121 +2,147 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\membrejery;
-use App\Http\Requests\StoremembrejeryRequest;
-use App\Http\Requests\UpdatemembrejeryRequest;
+use App\Models\Jury;
 use App\Models\JuryMember;
 use Exception;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class MembrejeryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-       
+        $membres = JuryMember::get();
+
+        foreach ($membres as $membre) {
+            return response()->json([
+                ' membre name ' => $membre->name,
+                'code ' => $membre->code,
+            ], 200);
+        }
     }
 
-   
     public function create(Request $request)
     {
-        
-        if ($this->validate($request->name,'name')) {
-            throw new Exception('invalid name');
-        }
+        try {
+            $validator = Validator::make($request->all(), [
+                'code' => 'required|integer',
+                'name' => 'required|string',
+                'jury' => 'required|string'
+            ]);
 
-        $validator = Validator::make($request->all(), [
-            'code' => 'required|integer',
-            'name' => 'required|string',
-        ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
 
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-        $code = $this->randomcode();
-        $memberjery = new JuryMember();
-        $memberjery->code = $code;
-        $memberjery->place = $request->name;
-        $memberjery->save();
-        if ($memberjery) {
+            $code = $this->randomcode(); 
+            
+            $memberjery = new JuryMember();
+            $memberjery->code = $code;
+            $memberjery->name = $request->name;  
+            $memberjery->save();
+
+            $jury = Jury::where('name', $request->jury)->first();
+
+            if ($jury) {
+                $juryMemberCount = $jury->members()->count();
+
+                if ($juryMemberCount < 3) {
+                    $memberjery->jury()->associate($jury);
+                    $memberjery->save();
+                } else {
+                    throw new Exception(' jury a  max number of members.');
+                }
+            } else {
+                throw new Exception('Jury not found.');
+            }
+
             return response()->json($memberjery, 201);
-        }else{
+
+        } catch (Exception $e) {
             return response()->json([
-                'status' => 'error',
-                'message' => '  membrejery not created',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
+
     public function update(Request $request, $id)
-{
-    
-    if ($this->validate($request->name,'name')) {
-        throw new Exception('invalid name');
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string',
+                'jury' => 'required|string'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            $jury = Jury::where('name', $request->jury)->first();
+
+            if ($jury) {
+                $juryMemberCount = $jury->members()->count();
+
+                if ($juryMemberCount < 3) {
+                    $memberjery = JuryMember::find($id);
+
+                    if (!$memberjery) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Jury member not found',
+                        ], 404);
+                    }
+
+                    $memberjery->name = $request->name;
+                    $memberjery->jury()->associate($jury);
+                    $memberjery->save();
+
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Jury member updated',
+                        'data' => $memberjery,
+                    ], 200);
+                } else {
+                    throw new Exception('jury a max number of members');
+                }
+            } else {
+                throw new Exception('Jury not found.');
+            }
+
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
-    $validator = Validator::make($request->all(), [
-        'name' => 'required|string',
-    ]);
 
-    if ($validator->fails()) {
-        return response()->json([
-            'errors' => $validator->errors(),
-        ], 422);
+    public function delete($id)
+    {
+        try {
+            $memberjery = JuryMember::find($id);
+
+            if (!$memberjery) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Jury member not found',
+                ], 404);
+            }
+
+            $memberjery->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Jury member deleted',
+            ], 200);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
-
-
-    
-    $memberjery = JuryMember::find($id);
-
-    if (!$memberjery) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Jury member not found',
-        ], 404);
-    }
-
-    $memberjery->name = $request->name;
-    $memberjery->save();  
-    
-
-
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Jury member updated ',
-        'data' => $memberjery,
-    ], 200);
-}
-public function delete($id)
-{
-   
-    $memberjery = JuryMember::find($id);
-
-    if (!$memberjery) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Jury member not found',
-        ], 404);
-    }
-
-  
-    $memberjery->delete();
-
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Jury member deleted ',
-    ], 200);
-}
-
-
-
-  
-
-  
-  
 }
